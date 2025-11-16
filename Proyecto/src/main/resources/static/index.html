@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Gestión de Estudiantes</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background: #f5f7fb;
+          margin: 0;
+        }
+        header {
+          background: #0078D7;
+          color: white;
+          text-align: center;
+          padding: 15px;
+          font-size: 22px;
+          font-weight: bold;
+        }
+        main {
+          max-width: 900px;
+          margin: 30px auto;
+          background: white;
+          border-radius: 10px;
+          padding: 20px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        select, input, button {
+          padding: 8px;
+          margin: 5px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        }
+        button {
+          background: #0078D7;
+          color: white;
+          border: none;
+          cursor: pointer;
+        }
+        button:hover {
+          background: #005fa3;
+        }
+        section {
+          display: none;
+        }
+        section.active {
+          display: block;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 15px;
+        }
+        th, td {
+          border: 1px solid #ccc;
+          padding: 8px;
+          text-align: left;
+        }
+        th {
+          background: #0078D7;
+          color: white;
+        }
+        #resultadoBuscar div {
+          background: #f8f9fa;
+          padding: 10px;
+          border-radius: 8px;
+          border: 1px solid #ccc;
+          margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>Sistema de Gestión de Estudiantes</header>
+
+<main>
+    <label for="menu">Seleccione una acción:</label>
+    <select id="menu" onchange="mostrarSeccion()">
+        <option value="">-- Seleccione --</option>
+        <option value="ver">Ver todos</option>
+        <option value="buscar">Buscar por ID</option>
+        <option value="agregar">Agregar nuevo</option>
+        <option value="editar">Editar estudiante</option>
+        <option value="eliminar">Eliminar</option>
+    </select>
+
+    <!-- Sección ver -->
+    <section id="ver">
+        <h2>Lista de Estudiantes</h2>
+        <button onclick="cargarEstudiantes()">Actualizar lista</button>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Idioma</th>
+            </tr>
+            </thead>
+            <tbody id="tablaEstudiantes"></tbody>
+        </table>
+    </section>
+
+    <!-- Sección buscar -->
+    <section id="buscar">
+        <h2>Buscar Estudiante por ID</h2>
+        <input type="number" id="buscarId" placeholder="Ingrese ID" />
+        <button onclick="buscarPorId()">Buscar</button>
+        <div id="resultadoBuscar"></div>
+    </section>
+
+    <!-- Sección agregar -->
+    <section id="agregar">
+        <h2>Agregar Estudiante</h2>
+        <form id="formAgregar">
+            <input type="text" id="nombre" placeholder="Nombre" required maxlength="255" />
+            <input type="email" id="correo" placeholder="Correo" required />
+            <input type="text" id="telefono" placeholder="Teléfono (10 dígitos)" required pattern="\d{10}" />
+            <select id="idioma" required>
+                <option value="">Idioma</option>
+                <option value="Español">Español</option>
+                <option value="Inglés">Inglés</option>
+                <option value="Francés">Francés</option>
+            </select>
+            <button type="submit">Agregar</button>
+        </form>
+        <p id="agregadoMsg"></p>
+    </section>
+
+    <!-- Sección editar -->
+    <section id="editar">
+        <h2>Editar Estudiante</h2>
+        <form id="formEditar">
+            <input type="number" id="editId" placeholder="ID existente" required />
+            <input type="text" id="editNombre" placeholder="Nuevo nombre" />
+            <input type="email" id="editCorreo" placeholder="Nuevo correo" />
+            <input type="text" id="editTelefono" placeholder="Nuevo teléfono (10 dígitos)" />
+            <select id="editIdioma">
+                <option value="">Seleccionar idioma</option>
+                <option value="Español">Español</option>
+                <option value="Inglés">Inglés</option>
+                <option value="Francés">Francés</option>
+            </select>
+            <button type="submit">Guardar cambios</button>
+        </form>
+    </section>
+
+    <!-- Sección eliminar -->
+    <section id="eliminar">
+        <h2>Eliminar Estudiante</h2>
+        <input type="number" id="deleteId" placeholder="ID a eliminar" required />
+        <button onclick="eliminarEstudiante()">Eliminar</button>
+    </section>
+</main>
+
+<script>
+    const API_URL = "http://localhost:8080/students";
+
+    function mostrarSeccion() {
+      document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+      const val = document.getElementById("menu").value;
+      if (val) document.getElementById(val).classList.add("active");
+    }
+
+    async function cargarEstudiantes() {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      const tbody = document.getElementById("tablaEstudiantes");
+      tbody.innerHTML = "";
+      data.forEach(e => {
+        tbody.innerHTML += `<tr>
+          <td>${e.id}</td><td>${e.nombre}</td><td>${e.correo}</td>
+          <td>${e.numeroTelefono}</td><td>${e.idioma}</td>
+        </tr>`;
+      });
+    }
+
+    async function buscarPorId() {
+      const id = document.getElementById("buscarId").value;
+      const div = document.getElementById("resultadoBuscar");
+      div.innerHTML = "";
+      if (!id) return alert("Ingrese un ID");
+      const res = await fetch(`${API_URL}/${id}`);
+      if (res.ok) {
+        const est = await res.json();
+        div.innerHTML = `
+          <div>
+            <strong>ID:</strong> ${est.id}<br>
+            <strong>Nombre:</strong> ${est.nombre}<br>
+            <strong>Correo:</strong> ${est.correo}<br>
+            <strong>Teléfono:</strong> ${est.numeroTelefono}<br>
+            <strong>Idioma:</strong> ${est.idioma}
+          </div>`;
+      } else div.innerHTML = `<span style="color:red;">❌ Estudiante no encontrado.</span>`;
+    }
+
+    document.getElementById("formAgregar").addEventListener("submit", async e => {
+      e.preventDefault();
+      const nuevo = {
+        nombre: nombre.value,
+        correo: correo.value,
+        numeroTelefono: telefono.value,
+        idioma: idioma.value
+      };
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevo)
+      });
+      const msg = document.getElementById("agregadoMsg");
+      if (res.ok) {
+        const creado = await res.json();
+        msg.textContent = `✅ Estudiante agregado con ID ${creado.id}`;
+        e.target.reset();
+        cargarEstudiantes();
+      } else {
+        const err = await res.json();
+        msg.textContent = `❌ ${err.error}`;
+      }
+    });
+
+    document.getElementById("formEditar").addEventListener("submit", async e => {
+      e.preventDefault();
+      const id = editId.value;
+      const cambios = {
+        nombre: editNombre.value,
+        correo: editCorreo.value,
+        numeroTelefono: editTelefono.value,
+        idioma: editIdioma.value
+      };
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cambios)
+      });
+      if (res.ok) {
+        alert("✅ Estudiante actualizado correctamente.");
+        cargarEstudiantes();
+      } else {
+        alert("❌ Error al actualizar el estudiante.");
+      }
+    });
+
+    async function eliminarEstudiante() {
+      const id = deleteId.value;
+      if (!id) return alert("Ingrese un ID");
+      if (!confirm("¿Está seguro de eliminar este estudiante?")) return;
+      const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        alert("✅ Estudiante eliminado correctamente.");
+        cargarEstudiantes();
+      } else {
+        alert("❌ No se pudo eliminar el estudiante.");
+      }
+    }
+</script>
+</body>
+</html>

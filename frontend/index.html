@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Gestión de Estudiantes</title>
+
+<!--Audio-->
+  <audio id="soundClick" src="sounds/click.mp3" preload="auto"></audio>
+  <audio id="soundSuccess" src="sounds/success.mp3" preload="auto"></audio>
+  <audio id="soundError" src="sounds/error.mp3" preload="auto"></audio>
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<header>Sistema de Gestión de Estudiantes</header>
+<main>
+
+<!-- Menú -->
+<section id="menuPrincipal" class="active">
+  <h2 class="tituloCentro">Bienvenido<br>¿Qué desea hacer hoy?</h2>
+  <div class="grid-menu">
+    <button class="card" onclick="playClick(); abrirSeccion('buscar')">🔍<br>Buscar Estudiante</button>
+    <button class="card" onclick="playClick(); abrirSeccion('agregar')">➕<br>Agregar Estudiante</button>
+    <button class="card" onclick="playClick(); abrirSeccion('ver')">📘<br>Ver Estudiantes</button>
+    <button class="card" onclick="playClick(); abrirSeccion('editarMenu')">📝<br>Editar Estudiante</button>
+    <button class="card" onclick="playClick(); abrirSeccion('eliminar')">🗑️<br>Eliminar Estudiante</button>
+  </div>
+</section>
+
+<!-- Menú Editar -->
+<section id="editarMenu">
+  <h2>Editar Estudiante</h2>
+  <div class="grid-menu">
+    <button class="card" onclick="playClick(); abrirSeccion('editarCompleto')">📝<br>Editar Completo</button>
+    <button class="card" onclick="playClick(); abrirSeccion('editarParcial')">🛠️<br>Editar Parcial</button>
+  </div>
+  <button class="volver" onclick="playClick(); abrirSeccion('menuPrincipal')">⬅ Volver al inicio</button>
+</section>
+
+<!-- Ver Estudiantes -->
+<section id="ver">
+  <h2>Lista de Estudiantes</h2>
+  <button onclick="playClick(); cargarEstudiantes()">Actualizar</button>
+  <table>
+    <thead><tr><th>ID</th><th>Nombre</th><th>Apellido</th><th>Correo</th><th>Teléfono</th><th>Idioma</th></tr></thead>
+    <tbody id="tablaEstudiantes"></tbody>
+  </table>
+  <button class="volver" onclick="playClick(); abrirSeccion('menuPrincipal')">⬅ Volver</button>
+</section>
+
+<!-- Buscar Estudiantes -->
+<section id="buscar">
+  <h2>Buscar Estudiante</h2>
+  <div>
+    <input type="number" id="buscarId" placeholder="Ingrese ID" min="1" class="small-inline">
+    <button class="small-btn" onclick="playClick(); buscarPorId()">Buscar</button>
+  </div>
+  <div id="resultadoBuscar"></div>
+  <button class="volver" onclick="playClick(); abrirSeccion('menuPrincipal')">⬅ Volver</button>
+</section>
+
+<!-- Agregar Estudiantes -->
+<section id="agregar">
+  <h2>Agregar Estudiante</h2>
+  <form id="formAgregar">
+    <input type="text" id="nombre" placeholder="Nombre" required maxlength="70">
+    <input type="text" id="apellido" placeholder="Apellido" required maxlength="70">
+    <input type="email" id="correo" placeholder="Correo" required>
+    <input type="text" id="telefono" placeholder="Teléfono (10 dígitos)" pattern="\d{10}" required>
+    <select id="idioma" required>
+      <option value="">Idioma</option>
+      <option>Español</option>
+      <option>Inglés</option>
+      <option>Francés</option>
+    </select>
+    <button type="submit" onclick="playClick()">Agregar</button>
+  </form>
+  <div id="agregadoMsg"></div>
+  <button class="volver" onclick="playClick(); abrirSeccion('menuPrincipal')">⬅ Volver</button>
+</section>
+
+<!-- Editar Estudiante Completo -->
+<section id="editarCompleto">
+  <h2>Editar Estudiante (Completo)</h2>
+  <div>
+    <input type="number" id="editId" placeholder="ID" min="1" class="small-inline">
+    <button class="small-btn" onclick="playClick(); cargarParaEditarCompleto()">Cargar</button>
+  </div>
+
+  <form id="formEditar">
+    <input type="text" id="editNombre" placeholder="Nuevo nombre">
+    <input type="text" id="editApellido" placeholder="Nuevo apellido">
+    <input type="email" id="editCorreo" placeholder="Nuevo correo">
+    <input type="text" id="editTelefono" placeholder="Nuevo teléfono">
+    <select id="editIdioma">
+      <option value="">Idioma</option><option>Español</option><option>Inglés</option><option>Francés</option>
+    </select>
+    <button type="submit" onclick="playClick()">Guardar</button>
+  </form>
+  <div id="editarCompletoMsg"></div>
+  <button class="volver" onclick="playClick(); abrirSeccion('menuPrincipal')">⬅ Volver</button>
+</section>
+
+<!-- Editar  -->
+<section id="editarParcial">
+  <h2>Editar Estudiante (Parcial)</h2>
+  <div>
+    <input type="number" id="editParcialId" placeholder="ID" min="1" class="small-inline">
+    <button class="small-btn" onclick="playClick(); mostrarOpcionesParcial()">Continuar</button>
+  </div>
+
+  <div id="parcialOpciones"></div>
+  <div id="parcialCampo"></div>
+
+  <button class="volver" onclick="playClick(); abrirSeccion('menuPrincipal')">⬅ Volver</button>
+</section>
+
+<!-- Eliminar Estudiante -->
+<section id="eliminar">
+  <h2>Eliminar Estudiante</h2>
+  <div>
+    <input type="number" id="deleteId" placeholder="ID" min="1" class="small-inline">
+    <button class="small-btn" onclick="playClick(); mostrarConfirmacion()">Buscar</button>
+  </div>
+  <div id="deleteInfo"></div>
+  <button class="volver" onclick="playClick(); abrirSeccion('menuPrincipal')">⬅ Volver</button>
+</section>
+
+</main>
+
+<script>
+let bloqueoClick = false; 
+
+function playClick(){
+  if (bloqueoClick) return;
+  const s = document.getElementById("soundClick");
+  s.pause();
+  s.currentTime = 0;
+  s.play().catch(()=>{});
+}
+
+function playSuccess(){
+  const s = document.getElementById("soundSuccess");
+  bloqueoClick = true;
+  s.pause();
+  s.currentTime = 0;
+  s.play().catch(()=>{}).finally(()=>{
+    setTimeout(() => bloqueoClick = false, 300); 
+  });
+}
+
+function playError(){
+  const s = document.getElementById("soundError");
+  bloqueoClick = true; // 🔒
+  s.pause();
+  s.currentTime = 0;
+  s.play().catch(()=>{}).finally(()=>{
+    setTimeout(() => bloqueoClick = false, 300); 
+  });
+}
+</script>
+
+<script src="js/main.js"></script>
+</body>
+</html>
